@@ -1,12 +1,29 @@
 <script lang="ts">
   import Dialogue from "$lib/components/dialogue.svelte";
-  import type { DialogueNode, Flags } from "$lib/types/types";
+  import { type Item, type DialogueNode, type Flags } from "$lib/types/types";
   import { DIALOGUE } from "$lib/dialogue/dialogue";
   import { onMount } from "svelte";
   import { draggable } from '@neodrag/svelte';
   import distant_bgm from "$lib/assets/music/Distant.ogg";
+  import Inventory from "./inventory.svelte";
 
+  const preloadAudio = (src: string): HTMLAudioElement => {
+    const audio = new Audio(src);
+    audio.preload = "auto";
+    audio.load();
+    return audio;
+  };
 
+  import menucancel_sfxfile from "$lib/assets/sfx/menu_cancel.wav";
+  import menudecision_sfxfile from "$lib/assets/sfx/menu_decision.wav";
+
+  const sfx_MENUDECISION = preloadAudio(menudecision_sfxfile);
+  const sfx_MENUCANCEL = preloadAudio(menucancel_sfxfile);
+
+  let LOADED = $state(false);
+  let open = $state(false);
+
+  // #region bgm
   let bgm = $state<HTMLAudioElement | null>(null);
   let bgm_src = $state<string>(distant_bgm);
 
@@ -25,16 +42,15 @@
     bgm.currentTime = 0;
     bgm.pause();
   }
+  // #endregion
 
-  let LOADED = $state(false);
-  
+  // #region dialogue
   let renderDialogue = $state<boolean>(true);
   let flags = $state<Flags>({});
-
   let numVisits = $state<number>(0);
   let currentNodeId = $state<string>("start");
   let currentNode = $derived<DialogueNode>(DIALOGUE[currentNodeId]);
-  
+
   onMount(() => {
     const visits = localStorage.getItem('visits');
     if (visits) {
@@ -48,23 +64,18 @@
     }
 
     const visit_count_dialogues: Record<number, string> = {
-      0: "start",
-      1: "visit_1a",
-      2: "visit_2a",
-      5: "visit_5",
-      10: "visit_10",
-      67: "visit_67"
+      0: "start" // maybe more later
     }
 
     if (!visits) {
       currentNodeId = visit_count_dialogues[0]
     } else {
-      currentNodeId = visit_count_dialogues[Number(visits)] || "visit_3"
+      currentNodeId = visit_count_dialogues[Number(visits)] || "start"
     }
     
     LOADED = true;
+    open = true;
   });
-
 
   function meetsRequirements(node: DialogueNode): boolean {
     if (!node.requiresFlags) return true;
@@ -103,49 +114,124 @@
       renderDialogue = false;
     }
   }
+  // #endregion
+
+  // #region inventory
+  const NOTE: Item = {
+    id: 'note',
+    name: 'note',
+    desc: "A note, addressed to \"Emmy\".",
+    icon: "/note.png",
+
+    onUse: () => { goTo("note"); renderDialogue = true; }
+  }
+  let inventory = $state<Item[]>([NOTE]);
+  let inventoryOpen = $state<boolean>(false);
+    
+  function toggleInventory() {
+    if (renderDialogue) return;
+    inventoryOpen = !inventoryOpen;
+
+    if (inventoryOpen) {
+      sfx_MENUDECISION.volume = 0.5;
+      sfx_MENUDECISION.currentTime = 0;
+      sfx_MENUDECISION.play();
+      console.log("open")
+    } else {
+      sfx_MENUCANCEL.volume = 0.5;
+      sfx_MENUCANCEL.currentTime = 0;
+      sfx_MENUCANCEL.play();
+      console.log("close")
+    }
+  }
+
+  let down = $state<boolean>(false);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "s" || e.key === "S" && !down) {
+      toggleInventory();
+      down = true;
+    }
+  })
+
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "s" || e.key === "S" && down) {
+      down = false;
+    }
+  })
+
+  // #endregion
+
+  function close() {
+    open = false;
+  }
 
   $effect(() => {
-    if (!renderDialogue) {
+    if (!open)
       killBgm();
-    }
   });
-
-  function kill() {
-    renderDialogue = false;
-  }
 </script>
+
 <audio bind:this={bgm} src={bgm_src} loop style="display: none"></audio>
-<div class={`window ${!renderDialogue ? "fade-out" : ""}`} use:draggable={{ bounds: 'parent', handle: '.window-bar', cancel: '.wb__controls' }}>
+
+<div class={`window ${!open ? "fade-out" : ""}`} use:draggable={{ bounds: 'parent', handle: '.window-bar', cancel: '.wb__controls' }}>
   <div class="window-bar">
     <span class="wb__title"><img alt="" src="/lightbulb.png"/>OneShot</span>
     <div class="wb__controls">
-      <button class="wbc minimize" title="Minimize">
-        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14 8v1H3V8h11z"></path>
-        </svg>
-      </button>
-      <button class="wbc maximize" title="Maximize">
-        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 3v10h10V3H3zm9 9H4V4h8v8z"></path>
-        </svg>
-      </button>
-      <button class="wbc close" title="Close" onclick={kill}><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.116 8l-4.558 4.558.884.884L8 8.884l4.558 4.558.884-.884L8.884 8l4.558-4.558-.884-.884L8 7.116 3.442 2.558l-.884.884L7.116 8z"></path></svg></button>
+      <div class="wb__controls">
+        <button class="wbc minimize" title="Minimize">
+          <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 8v1H3V8h11z"></path>
+          </svg>
+        </button>
+        <button class="wbc maximize" title="Maximize">
+          <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3v10h10V3H3zm9 9H4V4h8v8z"></path>
+          </svg>
+        </button>
+        <button class="wbc close" title="Close" onclick={close}><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.116 8l-4.558 4.558.884.884L8 8.884l4.558 4.558.884-.884L8.884 8l4.558-4.558-.884-.884L8 7.116 3.442 2.558l-.884.884L7.116 8z"></path></svg></button>
+      </div>
     </div>
   </div>
 
-  <div class="window-content">
-    {#if renderDialogue && LOADED}
-      <Dialogue
-        dialogue={currentNode}
-        flags={flags}
-        onNext={handleNext}
+  {#if LOADED}
+    <div class="window-content">
+      <Inventory 
+        inventory={inventory}
+        show={inventoryOpen}
       />
-    {/if}
-  </div>
 
+      <img
+        id="player"
+        alt=""
+        src={`/sprites/niko_finale/niko_00.png`}
+        style={`left: 212px; top: 208px;`}
+      />
+
+      {#if renderDialogue}
+        <Dialogue
+          dialogue={currentNode}
+          flags={flags}
+          onNext={handleNext}
+        />
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
+  .debug-tile {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+
+  #player {
+    position: absolute;
+  }
+
   .window {
     position: absolute;
     left: calc(50% - calc(640px / 2));
@@ -229,7 +315,7 @@
 
     border-radius: 0px 0px 8px 8px;
 
-    background-image: url("/solstice.png");
+    background-image: url("/return_crop.png");
   }
 
   .fade-out {

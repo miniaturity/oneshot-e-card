@@ -17,6 +17,7 @@ export interface DialogueNode {
 
   pausePoints?: { index: number, ms: number }[];
   allDelay?: number; // pause points but for all indexes
+  nextDelay?: number; // delay next dialogue (box disappears until then )
   requiresFlags?: string[];
   setFlags?: string[];
 
@@ -24,3 +25,12 @@ export interface DialogueNode {
 }
 
 export type DialogueGraph = Record<string, DialogueNode>;
+
+export interface Item {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+
+  onUse: () => void;
+}

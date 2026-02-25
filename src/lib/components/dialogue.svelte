@@ -185,41 +185,60 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="dialogue-box" role="dialog">
-  <div class="db__content">
-    {#if currentMode === "dialogue"}
-      {currentText}
-    {:else}
-      {#each currentOptions as option, i}
-        <div
-          class={`dbc__option`}
-        >
-          <div class={`dbco__content ${i === selectedOption ? "o__selected" : ""}`}>{option.title}</div>
-        </div>
-      {/each}
+{#if currentMode === "options"}
+  <div class="options">
+    {#each currentOptions as option, i}
+      <div
+        class={`dbc__option`}
+        style={`top: calc(calc(50% - calc(${currentOptions.length - 1} * 25px)) + calc(25px * ${i})); left: var(--margin)`}
+      >
+        <div class={`dbco__content ${i === selectedOption ? "o__selected" : ""}`}>{option.title}</div>
+      </div>
+    {/each}
+  </div>
+{/if}
+
+{#if currentMode === "dialogue"}
+  <div class="dialogue-box" role="dialog">
+    <div class="db__content">
+        {currentText}      
+      
+    </div>
+
+    <div class="db__face">
+      <img
+        alt={dialogue.expression}
+        src={`/faces/${dialogue.expression}.png`}
+        onerror={() =>
+          console.log("Expression " + dialogue.expression + " not found.")
+        }
+      />
+    </div>
+
+    {#if currentText.length === dialogue.text.length}
+      <img alt="" src="/normal.gif" class="arrow"/>
     {/if}
-    
-  </div>
-
-  <div class="db__face">
-    <img
-      alt={dialogue.expression}
-      src={`/faces/${dialogue.expression}.png`}
-      onerror={() =>
-        console.log("Expression " + dialogue.expression + " not found.")
-      }
-    />
-  </div>
-
-  {#if currentText.length === dialogue.text.length}
-    <img alt="" src="/normal.gif" class="arrow"/>
-  {/if}
 </div>
+{/if}
 
 <style>
+  .options {
+    --margin: 18px;
+    border-image-source: url("/normal.png");
+    border-image-slice: 25%;
+    border-image-repeat: repeat;
+
+    color: #fff;
+    background-color: #180C1E;
+    font-size: 1.2rem;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+  }
   .dialogue-box {
     align-self: flex-end;
-    position: relative;
 
     --margin: 18px;
     display: flex;
@@ -265,8 +284,9 @@
   }
 
   .dbc__option {
-    position: relative;
-    width: calc(100% - 4px);
+    position: absolute;
+    left: 0;
+    width: calc(100% - calc(2 * var(--margin)));
     isolation: isolate;
   }
 
