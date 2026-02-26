@@ -17,7 +17,8 @@ export interface DialogueNode {
 
   pausePoints?: { index: number, ms: number }[];
   allDelay?: number; // pause points but for all indexes
-  nextDelay?: number; // delay next dialogue (box disappears until then )
+  nextDelay?: number; // delay next dialogue (box disappears until then)
+  end?: boolean;
   requiresFlags?: string[];
   setFlags?: string[];
 

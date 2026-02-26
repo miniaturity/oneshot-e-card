@@ -21,16 +21,17 @@
   let {
     dialogue,
     flags,
-    onNext
+    onNext,
+    finished
   }: {
     dialogue: DialogueNode;
     flags: Record<string, boolean>;
     onNext: (choiceNext?: string) => void;
+    finished: boolean;
   } = $props();
 
   const SPEED = 25;
 
-  let finished = $state(false);
   let currentText = $state("");
   let index = $state(0);
 
@@ -201,8 +202,7 @@
 {#if currentMode === "dialogue"}
   <div class="dialogue-box" role="dialog">
     <div class="db__content">
-        {currentText}      
-      
+        {currentText}
     </div>
 
     <div class="db__face">
@@ -238,6 +238,7 @@
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
   }
   .dialogue-box {
+    position: relative;
     align-self: flex-end;
 
     --margin: 18px;

@@ -10,8 +10,8 @@ export const DIALOGUE: DialogueGraph = {
 
   start_b: {
     id: "start_b",
-    text: "Am I.. here again..?",
-    expression: "niko_pancakes",
+    text: "I'm.. back here?",
+    expression: "niko_speak",
     next: "start_c",
 
     pausePoints: [
@@ -28,7 +28,7 @@ export const DIALOGUE: DialogueGraph = {
 
   start_c: {
     id: "start_c",
-    text: "Wait.. Is this another dream?",
+    text: "Wait.. is this another dream?",
     expression: "niko_eyeclosed",
 
     options: [
@@ -69,7 +69,7 @@ export const DIALOGUE: DialogueGraph = {
 
   who: {
     id: "who",
-    text: "Then.. Who are you..?",
+    text: "Then.. who are you..?",
     expression: "niko2",
 
     pausePoints: [
@@ -150,8 +150,8 @@ export const DIALOGUE: DialogueGraph = {
 
   emmy: {
     id: "emmy",
-    text: "Are you Emmy?..",
-    expression: "niko_smile",
+    text: "Are you Emmy?",
+    expression: "niko2",
 
     options: [
       {
@@ -167,7 +167,7 @@ export const DIALOGUE: DialogueGraph = {
 
   friend: {
     id: "friend",
-    text: "A friend of Miniaturity is a friend of mine...",
+    text: "Okay, I'll read it out for you..",
 
     expression: "niko_83c",
     setFlags: ["isEmmy"],
@@ -201,60 +201,135 @@ export const DIALOGUE: DialogueGraph = {
 
   note_b: {
     id: "note_b",
-    text: "\"Dear Emmy...\"",
-    expression: "niko_speak"
+    text: "Ahem.. \"Dear Emmy...\"",
+    expression: "niko_speak",
+    next: "note_c",
+
+    pausePoints: [
+      {
+        index: 5,
+        ms: 250,
+      },
+      {
+        index: 6,
+        ms: 250,
+      }
+    ],
+  },
+
+  note_c: {
+    id: "note_c",
+    text: "\"I hope this card finds you well..\"",
+    expression: "niko",
+    next: "note_f"
+  },
+
+  note_f: {
+    id: "note_f",
+    text: "\"I wanted to write to you because.. I think you're pretty cool!\"",
+    expression: "niko_speak",
+
+    next: "note_g"
+  },
+
+  note_g: {
+    id: "note_g",
+    text: "Aww...",
+    expression: "niko_83c",
+    requiresFlags: ["isEmmy"],
+    next: "note_h"
+  },
+
+  note_h: {
+    id: "note_h",
+    text: "\"And I wanted to make this OneShot themed because you bought me it..\"",
+    expression: "niko_speak",
+    next: "note_i"
+  },
+
+  note_i: {
+    id: "note_i",
+    text: "\"So I thought that I'd make something for you in return!\"",
+    expression: "niko",
+    next: "note_l"
+  },
+
+  note_l: {
+    id: "note_l",
+    text: "\"You're the nicest girl I know, and I am very very grateful for your gift..\"",
+    expression: "niko_speak",
+    next: "note_m"
+  },
+
+  note_m: {
+    id: "note_m",
+    text: "\"OneShot is like, my favorite indie story game. I loove it so much!!\"",
+    expression: "niko",
+    next: "note_n"
+  },
+
+  note_n: {
+    id: "note_n",
+    text: "\"Anyways, thanks for taking the time to read.\"",
+    expression: "niko_speak",
+    next: "note_p"
+  },
+
+  note_p: {
+    id: "note_p",
+    text: "\"Lots of love, Miniaturity.\"",
+    expression: "niko_speak",
+    next: "note_q"
+  },
+
+  note_q: {
+    id: "note_q",
+    text: "That's the end of the note..",
+    expression: "niko",
+    next: "goodbye_knows"
+  },
+
+  goodbye_knows: {
+    id: "goodbye_knows",
+    requiresFlags: ["isEmmy"],
+    text: "Well, it was nice knowing you Emmy! I've got to get back home before mama starts worrying..",
+    expression: "niko_83c",
+    next: "goodbye_random",
+
+    pausePoints: [
+      {
+        index: 35,
+        ms: 500
+      }
+    ]
+  },
+
+  goodbye_random: {
+    id: "goodbye_random",
+    requiresFlags: ["notEmmy"],
+    text: "..Um, I've gotta go home.. Goodbye, stranger!",
+    expression: "niko_speak",
+
+    end: true,
+    next: "bye_c",
+
+    pausePoints: [
+      {
+        index: 26,
+        ms: 250
+      },
+      {
+        index: 27,
+        ms: 250
+      }
+    ]
+  },
+
+  bye_c: {
+    id: "bye_c",
+    text: "Goodbye. I hope I can come back here again, soon.",
+    expression: "niko_smile",
+    end: true,
+    requiresFlags: ["isEmmy"]
   }
-
-  // question: {
-  //   id: "question",
-  //   text: "What do you want to know?",
-  //   expression: "niko",
-  //   options: [
-  //     {
-  //       title: "Who are you?",
-  //       next: "who",
-  //       setFlags: ["askedWho"]
-  //     },
-  //     {
-  //       title: "You're annoying.",
-  //       next: "rude",
-  //       setFlags: ["rude"]
-  //     }
-  //   ]
-  // },
-
-  // who: {
-  //   id: "who",
-  //   text: "I'm just a prototype.",
-  //   expression: "niko",
-  //   next: "after"
-  // },
-
-  // rude: {
-  //   id: "rude",
-  //   text: "...That's not very nice.",
-  //   expression: "niko",
-  //   next: "after"
-  // },
-
-  // after: {
-  //   id: "after",
-  //   text: "Anyway...",
-  //   expression: "niko",
-  //   next: "memoryCheck"
-  // },
-
-  // memoryCheck: {
-  //   id: "memoryCheck",
-  //   text: "I remember what you said earlier.",
-  //   expression: "niko",
-  //   requiresFlags: ["rude"],
-  //   next: "end"
-  // },
-
-  // end: {
-  //   id: "end",
-  //   text: "See you later.",
-  //   expression: "niko"
-  // }
 };

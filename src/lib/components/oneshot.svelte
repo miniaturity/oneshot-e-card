@@ -50,6 +50,7 @@
   let numVisits = $state<number>(0);
   let currentNodeId = $state<string>("start");
   let currentNode = $derived<DialogueNode>(DIALOGUE[currentNodeId]);
+  let dialogueFinished = $state<boolean>(false);
 
   onMount(() => {
     const visits = localStorage.getItem('visits');
@@ -108,6 +109,10 @@
       return;
     }
 
+    if (currentNode.end) {
+      close();
+    }
+
     if (currentNode.next) {
       goTo(currentNode.next);
     } else if (!currentNode.next) {
@@ -120,7 +125,7 @@
   const NOTE: Item = {
     id: 'note',
     name: 'note',
-    desc: "A note, addressed to \"Emmy\".",
+    desc: "A note?",
     icon: "/note.png",
 
     onUse: () => { goTo("note"); renderDialogue = true; }
@@ -210,6 +215,7 @@
 
       {#if renderDialogue}
         <Dialogue
+          finished={dialogueFinished}
           dialogue={currentNode}
           flags={flags}
           onNext={handleNext}
@@ -220,23 +226,16 @@
 </div>
 
 <style>
-  .debug-tile {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    box-sizing: border-box;
-    pointer-events: none;
-  }
-
   #player {
     position: absolute;
   }
 
   .window {
+    z-index: 9;
     position: absolute;
     left: calc(50% - calc(640px / 2));
     top: calc(50% - calc(calc(480px + 32px) / 2));
-    border: 1px solid #9e9e9e;
+    border: 1px solid #7a7a7a;
     width: 640px;
     height: calc(480px + 32px);
 

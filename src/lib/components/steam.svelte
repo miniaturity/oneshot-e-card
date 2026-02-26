@@ -46,6 +46,7 @@
 
 <style>
   .steam {
+    z-index: 9;
     user-select: none;
     position: absolute;
     top: calc(50% - calc(285px / 2));

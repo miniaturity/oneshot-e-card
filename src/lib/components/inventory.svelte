@@ -8,9 +8,9 @@
     return audio;
   };
 
-  import menudecision_sfxfile from "$lib/assets/sfx/menu_decision.wav";
+  import menucancel_sfxfile from "$lib/assets/sfx/menu_cancel.wav";
 
-  const sfx_MENUDECISION = preloadAudio(menudecision_sfxfile);
+  const sfx_MENUCANCEL = preloadAudio(menucancel_sfxfile);
   
   let {
     inventory,
@@ -30,8 +30,8 @@
     ];
 
     if (action_keys.includes(e.key)) {
-      sfx_MENUDECISION.currentTime = 0;
-      sfx_MENUDECISION.play();
+      sfx_MENUCANCEL.currentTime = 0;
+      sfx_MENUCANCEL.play();
 
       show = false;
       inventory[hovering].onUse();
